@@ -1,0 +1,9 @@
+Flask
+waitress
+pymongo
+dnspython
+flask_accept
+redis
+fakeredis
+Flask-Compress
+pytz

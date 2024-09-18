@@ -1,0 +1,40 @@
+table {
+    width: 95%;
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+th {
+    cursor: pointer;
+    position: relative;
+}
+
+th.sortable:hover {
+    background-color: #f0f0f0;
+}
+
+.sort-icon {
+    font-size: 0.8em;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.sort-icon.asc::before {
+    content: '▲'; /* Up arrow */
+}
+
+.sort-icon.desc::before {
+    content: '▼'; /* Down arrow */
+}
+
+.sort-icon.none::before {
+    content: '▲▼'; /* No arrow */
+}
