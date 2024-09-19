@@ -7,3 +7,4 @@ class Brewery:
     name: str
     type: str
     full_location: str
+    num_checkins: int

@@ -1,6 +1,7 @@
 import logging
 import os
 import pickle
+from collections import defaultdict
 
 import fakeredis
 import redis
@@ -61,9 +62,30 @@ class ApplicationDao:
             return pickle.loads(serialized_breweries_list)
 
         documents = self.breweries_collection.find()
-        breweries = [Brewery(**{k: v for k, v in doc.items() if k != '_id'}) for doc in documents]
+        brewery_id_to_checkins = self.get_brewery_checkins()
+
+        breweries = []
+        for document in documents:
+            brewery = Brewery(
+                id=document["id"],
+                name=document["name"],
+                type=document["type"],
+                full_location=document["full_location"],
+                num_checkins=brewery_id_to_checkins.get(document["id"], 0)
+            )
+            breweries.append(brewery)
 
         serialized_data = pickle.dumps(breweries)
         self.cache.set("breweries_list", serialized_data, ex=REDIS_CACHE_TTL)
 
         return breweries
+
+    def get_brewery_checkins(self) -> dict[str, int]:
+        brewery_id_to_checkins = defaultdict(int)
+        beers = self.get_beers()
+
+        for beer in beers:
+            brewery_id = beer.brewery_id
+            brewery_id_to_checkins[brewery_id] += 1
+
+        return brewery_id_to_checkins
