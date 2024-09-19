@@ -2,6 +2,7 @@ import logging
 import os
 import pickle
 from collections import defaultdict
+from statistics import median
 
 import fakeredis
 import redis
@@ -14,6 +15,7 @@ from application.constants import DB_NAME, REDIS_VERSION, BEERS_COLLECTION_NAME,
 from application.data.beer import Beer
 from application.data.brewery import Brewery
 from application.data.country import Country
+from application.data.style import Style
 
 LOG = logging.getLogger(__name__)
 
@@ -63,7 +65,7 @@ class ApplicationDao:
             return pickle.loads(serialized_breweries_list)
 
         documents = self.breweries_collection.find()
-        brewery_id_to_checkins = self.get_brewery_checkins()
+        brewery_id_to_checkins = self._get_brewery_checkins()
 
         breweries = []
         for document in documents:
@@ -115,7 +117,7 @@ class ApplicationDao:
 
         return countries
 
-    def get_brewery_checkins(self) -> dict[str, int]:
+    def _get_brewery_checkins(self) -> dict[str, int]:
         brewery_id_to_checkins = defaultdict(int)
         beers = self.get_beers()
 
@@ -124,3 +126,31 @@ class ApplicationDao:
             brewery_id_to_checkins[brewery_id] += 1
 
         return brewery_id_to_checkins
+
+    def get_styles(self) -> list[Style]:
+        serialized_styles_list = self.cache.get("styles_list")
+        if serialized_styles_list:
+            return pickle.loads(serialized_styles_list)
+
+        beers = self.get_beers()
+        style_to_ratings = defaultdict(list)
+        for beer in beers:
+            style_to_ratings[beer.style].append(beer.rating)
+
+        styles = []
+        for style_name, ratings in style_to_ratings.items():
+            filtered_ratings = [value for value in ratings if value != -1.0]
+
+            num_checkins = len(ratings)
+            avg_rating = sum(filtered_ratings) / num_checkins if filtered_ratings else -1
+            median_rating = median(filtered_ratings) if filtered_ratings else -1
+            min_rating = min(filtered_ratings) if filtered_ratings else -1
+            max_rating = max(filtered_ratings) if filtered_ratings else -1
+            style = Style(name=style_name, num_checkins=num_checkins, min_rating=min_rating, max_rating=max_rating,
+                          avg_rating=avg_rating, median_rating=median_rating)
+            styles.append(style)
+
+        serialized_data = pickle.dumps(styles)
+        self.cache.set("styles_list", serialized_data, ex=REDIS_CACHE_TTL)
+
+        return styles

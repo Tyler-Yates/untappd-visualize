@@ -36,5 +36,12 @@ def countries():
     return render_template("countries.html", countries=countries)
 
 
+@HTML_BLUEPRINT.route("/styles")
+def styles():
+    styles = _get_dao().get_styles()
+
+    return render_template("styles.html", styles=styles)
+
+
 def _get_dao() -> ApplicationDao:
     return current_app.config[DATABASE_CONFIG_KEY]
