@@ -29,5 +29,12 @@ def beers():
     return render_template("beers.html", beers=beers)
 
 
+@HTML_BLUEPRINT.route("/countries")
+def countries():
+    countries = _get_dao().get_countries()
+
+    return render_template("countries.html", countries=countries)
+
+
 def _get_dao() -> ApplicationDao:
     return current_app.config[DATABASE_CONFIG_KEY]

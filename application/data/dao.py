@@ -13,6 +13,7 @@ from application.constants import DB_NAME, REDIS_VERSION, BEERS_COLLECTION_NAME,
     BREWERIES_COLLECTION_NAME, COUNTRIES
 from application.data.beer import Beer
 from application.data.brewery import Brewery
+from application.data.country import Country
 
 LOG = logging.getLogger(__name__)
 
@@ -90,6 +91,29 @@ class ApplicationDao:
                 return country
 
         return "?"
+
+    def get_countries(self) -> list[Country]:
+        serialized_countries_list = self.cache.get("countries_list")
+        if serialized_countries_list:
+            return pickle.loads(serialized_countries_list)
+
+        breweries = self.get_breweries()
+        country_to_breweries = defaultdict(set)
+        country_to_checkins = defaultdict(int)
+        for brewery in breweries:
+            country_to_breweries[brewery.country].add(brewery.id)
+            country_to_checkins[brewery.country] += brewery.num_checkins
+
+        countries = []
+        for country in country_to_breweries.keys():
+            num_breweries = len(country_to_breweries[country])
+            num_checkins = country_to_checkins[country]
+            countries.append(Country(name=country, num_breweries=num_breweries, num_checkins=num_checkins))
+
+        serialized_data = pickle.dumps(countries)
+        self.cache.set("countries_list", serialized_data, ex=REDIS_CACHE_TTL)
+
+        return countries
 
     def get_brewery_checkins(self) -> dict[str, int]:
         brewery_id_to_checkins = defaultdict(int)
