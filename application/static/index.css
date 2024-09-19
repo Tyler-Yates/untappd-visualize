@@ -38,3 +38,27 @@ th.sortable:hover {
 .sort-icon.none::before {
     content: '▲▼'; /* No arrow */
 }
+
+.header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Aligns items to the left */
+    background-color: #333;
+    padding: 10px;
+    color: #fff;
+}
+
+/* Style for the link */
+.header-bar a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.header-bar a:hover {
+    text-decoration: underline;
+}
+
+#links {
+    margin: 20px;
+}
