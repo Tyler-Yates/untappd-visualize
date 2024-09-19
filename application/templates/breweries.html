@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div class="alert alert-danger">
+    {{ messages[0] }}
+</div>
+{% endif %}
+{% endwith %}
+
+    <h1 class="text-center">{{ breweries | length }} Breweries with at Least One Checkin</h1>
+    <table id="breweryTable">
+        <thead>
+            <tr>
+                <th class="sortable" onclick="sortTable(0)">
+                    Name
+                    <span class="sort-icon none" id="icon-0"></span>
+                </th>
+                <th class="sortable" onclick="sortTable(1)">
+                    Type
+                    <span class="sort-icon none" id="icon-1"></span>
+                </th>
+                <th class="sortable" onclick="sortTable(2)">
+                    Location
+                    <span class="sort-icon none" id="icon-2"></span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for brewery in breweries %}
+            <tr>
+                <td>{{ brewery.name }}</td>
+                <td>{{ brewery.type }}</td>
+                <td>{{ brewery.full_location }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        let currentSortColumn = null;
+        let currentSortOrder = null;
+
+        function sortTable(columnIndex) {
+            const table = document.getElementById('breweryTable');
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const ths = table.querySelectorAll('thead th');
+            const icons = table.querySelectorAll('.sort-icon');
+
+            const th = ths[columnIndex];
+            const ascending = currentSortColumn === columnIndex ? !currentSortOrder : true;
+
+            rows.sort((rowA, rowB) => {
+                const cellA = rowA.children[columnIndex].textContent.trim();
+                const cellB = rowB.children[columnIndex].textContent.trim();
+
+                let comparison = cellA.localeCompare(cellB);
+
+                return ascending ? comparison : -comparison;
+            });
+
+            currentSortColumn = columnIndex;
+            currentSortOrder = ascending;
+
+            const tbody = table.querySelector('tbody');
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+
+            // Update icons
+            icons.forEach((icon, index) => {
+                icon.className = 'sort-icon none';
+            });
+            const icon = document.getElementById(`icon-${columnIndex}`);
+            icon.className = `sort-icon ${ascending ? 'asc' : 'desc'}`;
+        }
+    </script>
+
+{% endblock %}

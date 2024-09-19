@@ -8,8 +8,10 @@ from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.database import Database
 
-from application.constants import DB_NAME, REDIS_VERSION, COLLECTION_NAME, REDIS_CACHE_TTL
+from application.constants import DB_NAME, REDIS_VERSION, BEERS_COLLECTION_NAME, REDIS_CACHE_TTL, \
+    BREWERIES_COLLECTION_NAME
 from application.data.beer import Beer
+from application.data.brewery import Brewery
 
 LOG = logging.getLogger(__name__)
 
@@ -35,7 +37,8 @@ class ApplicationDao:
 
         # Set up database and collection variables
         self.database = database
-        self.collection: Collection = self.database[COLLECTION_NAME]
+        self.beers_collection: Collection = self.database[BEERS_COLLECTION_NAME]
+        self.breweries_collection: Collection = self.database[BREWERIES_COLLECTION_NAME]
 
         LOG.info(f"Database collections: {self.database.list_collection_names()}")
 
@@ -44,10 +47,23 @@ class ApplicationDao:
         if serialized_beer_list:
             return pickle.loads(serialized_beer_list)
 
-        documents = self.collection.find()
+        documents = self.beers_collection.find()
         beers = [Beer(**{k: v for k, v in doc.items() if k != '_id'}) for doc in documents]
 
         serialized_data = pickle.dumps(beers)
         self.cache.set("beer_list", serialized_data, ex=REDIS_CACHE_TTL)
 
         return beers
+
+    def get_breweries(self) -> list[Brewery]:
+        serialized_breweries_list = self.cache.get("breweries_list")
+        if serialized_breweries_list:
+            return pickle.loads(serialized_breweries_list)
+
+        documents = self.breweries_collection.find()
+        breweries = [Brewery(**{k: v for k, v in doc.items() if k != '_id'}) for doc in documents]
+
+        serialized_data = pickle.dumps(breweries)
+        self.cache.set("breweries_list", serialized_data, ex=REDIS_CACHE_TTL)
+
+        return breweries
