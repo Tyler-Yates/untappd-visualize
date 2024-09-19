@@ -28,8 +28,12 @@
                     <span class="sort-icon none" id="icon-2"></span>
                 </th>
                 <th class="sortable" onclick="sortTable(3)">
-                    Checkins
+                    Country
                     <span class="sort-icon none" id="icon-3"></span>
+                </th>
+                <th class="sortable" onclick="sortTable(4)">
+                    Checkins
+                    <span class="sort-icon none" id="icon-4"></span>
                 </th>
             </tr>
         </thead>
@@ -39,6 +43,7 @@
                 <td>{{ brewery.name }}</td>
                 <td>{{ brewery.type }}</td>
                 <td>{{ brewery.full_location }}</td>
+                <td>{{ brewery.country }}</td>
                 <td>{{ brewery.num_checkins }}</td>
             </tr>
             {% endfor %}
@@ -63,7 +68,7 @@
                 const cellB = rowB.children[columnIndex].textContent.trim();
 
                 let comparison = 0;
-                if (columnIndex === 3) { // Numeric columns
+                if (columnIndex === 4) { // Numeric columns
                     // Treat empty cells as -1
                     const numA = cellA === '' ? -1 : parseFloat(cellA);
                     const numB = cellB === '' ? -1 : parseFloat(cellB);

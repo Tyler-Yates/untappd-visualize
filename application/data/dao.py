@@ -10,7 +10,7 @@ from pymongo.collection import Collection
 from pymongo.database import Database
 
 from application.constants import DB_NAME, REDIS_VERSION, BEERS_COLLECTION_NAME, REDIS_CACHE_TTL, \
-    BREWERIES_COLLECTION_NAME
+    BREWERIES_COLLECTION_NAME, COUNTRIES
 from application.data.beer import Beer
 from application.data.brewery import Brewery
 
@@ -66,12 +66,14 @@ class ApplicationDao:
 
         breweries = []
         for document in documents:
+            full_location = document["full_location"]
             brewery = Brewery(
                 id=document["id"],
                 name=document["name"],
                 type=document["type"],
-                full_location=document["full_location"],
-                num_checkins=brewery_id_to_checkins.get(document["id"], 0)
+                full_location=full_location,
+                num_checkins=brewery_id_to_checkins.get(document["id"], 0),
+                country=self._get_country(full_location)
             )
             breweries.append(brewery)
 
@@ -79,6 +81,15 @@ class ApplicationDao:
         self.cache.set("breweries_list", serialized_data, ex=REDIS_CACHE_TTL)
 
         return breweries
+
+    @staticmethod
+    def _get_country(full_location: str) -> str:
+        full_location = full_location.strip()
+        for country in COUNTRIES:
+            if full_location.endswith(country):
+                return country
+
+        return "?"
 
     def get_brewery_checkins(self) -> dict[str, int]:
         brewery_id_to_checkins = defaultdict(int)
