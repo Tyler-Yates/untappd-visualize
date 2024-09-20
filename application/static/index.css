@@ -69,5 +69,6 @@ th.sortable:hover {
 }
 
 #links {
-    margin: 20px;
+    margin-left: 20px;
+    margin-top: 50px;
 }
