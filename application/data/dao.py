@@ -28,6 +28,11 @@ class ApplicationDao:
         else:
             self.cache = cache
 
+        # Support resetting the cache for development testing
+        if os.environ.get("RESET_CACHE", "false") == "true":
+            LOG.info("Flushing cache")
+            self.cache.flushall()
+
         # If no database provided, connect to one
         if database is None:
             username = os.environ.get("MONGO_USER")
