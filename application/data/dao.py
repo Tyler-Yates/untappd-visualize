@@ -28,8 +28,6 @@ class ApplicationDao:
         else:
             self.cache = cache
 
-        self.cache.flushall()
-
         # If no database provided, connect to one
         if database is None:
             username = os.environ.get("MONGO_USER")
