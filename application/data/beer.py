@@ -12,3 +12,4 @@ class Beer:
     style: str
     abv: float
     first_checkin: datetime
+    country: str

@@ -57,8 +57,28 @@ class ApplicationDao:
             # noinspection PyTypeChecker
             return pickle.loads(serialized_beer_list)
 
-        documents = self.beers_collection.find()
-        beers = [Beer(**{k: v for k, v in doc.items() if k != '_id'}) for doc in documents]
+        brewery_id_to_country = dict()
+        breweries_documents = self.breweries_collection.find()
+        for brewery_document in breweries_documents:
+            brewery_id = brewery_document["id"]
+            brewery_id_to_country[brewery_id] = self._get_country(brewery_document["full_location"])
+
+        beer_documents = self.beers_collection.find()
+        beers = []
+        for beer_document in beer_documents:
+            brewery_id = beer_document["brewery_id"]
+            beer = Beer(
+                name=beer_document["name"],
+                id=beer_document["id"],
+                brewery=beer_document["brewery"],
+                brewery_id=brewery_id,
+                rating=beer_document["rating"],
+                style=beer_document["style"],
+                abv=beer_document["abv"],
+                first_checkin=beer_document["first_checkin"],
+                country=brewery_id_to_country.get(brewery_id, "")
+            )
+            beers.append(beer)
 
         serialized_data = pickle.dumps(beers)
         self.cache.set("beer_list", serialized_data, ex=REDIS_CACHE_TTL)
@@ -143,14 +163,14 @@ class ApplicationDao:
         return countries
 
     def _get_brewery_to_beers(self) -> dict[str, list[Beer]]:
-        brewery_id_to_checkins = defaultdict(list)
+        brewery_id_to_beers = defaultdict(list)
         beers = self.get_beers()
 
         for beer in beers:
             brewery_id = beer.brewery_id
-            brewery_id_to_checkins[brewery_id].append(beer)
+            brewery_id_to_beers[brewery_id].append(beer)
 
-        return brewery_id_to_checkins
+        return brewery_id_to_beers
 
     def get_styles(self) -> list[Style]:
         serialized_styles_list = self.cache.get("styles_list")

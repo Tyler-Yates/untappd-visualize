@@ -28,20 +28,24 @@
                     <span class="sort-icon none" id="icon-2"></span>
                 </th>
                 <th class="sortable" onclick="sortTable(3)">
-                    Rating
+                    Country
                     <span class="sort-icon none" id="icon-3"></span>
                 </th>
                 <th class="sortable" onclick="sortTable(4)">
-                    Style
+                    Rating
                     <span class="sort-icon none" id="icon-4"></span>
                 </th>
                 <th class="sortable" onclick="sortTable(5)">
-                    ABV
+                    Style
                     <span class="sort-icon none" id="icon-5"></span>
                 </th>
                 <th class="sortable" onclick="sortTable(6)">
-                    First Check-in
+                    ABV
                     <span class="sort-icon none" id="icon-6"></span>
+                </th>
+                <th class="sortable" onclick="sortTable(7)">
+                    First Check-in
+                    <span class="sort-icon none" id="icon-7"></span>
                 </th>
             </tr>
         </thead>
@@ -51,6 +55,7 @@
                 <td>{{ beer.name }}</td>
                 <td>{{ beer.id }}</td>
                 <td>{{ beer.brewery }}</td>
+                <td>{{ beer.country }}</td>
                 <td>{% if beer.rating != -1 %}{{ beer.rating }}{% else %}{% endif %}</td>
                 <td>{{ beer.style }}</td>
                 <td>{% if beer.abv != -1 %}{{ beer.abv }}{% else %}{% endif %}</td>
@@ -78,7 +83,7 @@
                 const cellB = rowB.children[columnIndex].textContent.trim();
 
                 let comparison = 0;
-                if (columnIndex === 1 || columnIndex === 3 || columnIndex === 5) { // Numeric columns
+                if (columnIndex === 1 || columnIndex === 4 || columnIndex === 6) { // Numeric columns
                     const numA = cellA === '' ? -1 : parseFloat(cellA); // Treat empty cells as -1
                     const numB = cellB === '' ? -1 : parseFloat(cellB);
                     comparison = numA - numB;
