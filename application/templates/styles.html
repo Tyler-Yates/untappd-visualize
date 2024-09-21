@@ -39,6 +39,10 @@
                     Median Rating
                     <span class="sort-icon none" id="icon-5"></span>
                 </th>
+                <th class="sortable" onclick="sortTable(6)">
+                    First Checkin
+                    <span class="sort-icon none" id="icon-6"></span>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -50,6 +54,7 @@
                 <td>{% if style.min_rating != -1 %}{{ style.min_rating | round(2) }}{% else %}{% endif %}</td>
                 <td>{% if style.max_rating != -1 %}{{ style.max_rating | round(2) }}{% else %}{% endif %}</td>
                 <td>{% if style.median_rating != -1 %}{{ style.median_rating | round(2) }}{% else %}{% endif %}</td>
+                <td>{{ style.first_checkin.strftime('%Y-%m-%d') }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -75,6 +80,8 @@
                 let comparison = 0;
                 if (columnIndex === 0) {
                     comparison = cellA.localeCompare(cellB);
+                } else if (columnIndex === 6) { // Date column
+                    comparison = new Date(cellA) - new Date(cellB);
                 } else {
                     // Treat empty cells as -1
                     const numA = cellA === '' ? -1 : parseFloat(cellA);

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 
 
 @dataclass
@@ -9,3 +10,4 @@ class Style:
     min_rating: float
     max_rating: float
     median_rating: float
+    first_checkin: datetime

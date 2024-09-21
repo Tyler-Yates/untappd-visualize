@@ -182,12 +182,13 @@ class ApplicationDao:
             return pickle.loads(serialized_styles_list)
 
         beers = self.get_beers()
-        style_to_ratings = defaultdict(list)
+        style_to_beers = defaultdict(list)
         for beer in beers:
-            style_to_ratings[beer.style].append(beer.rating)
+            style_to_beers[beer.style].append(beer)
 
         styles = []
-        for style_name, ratings in style_to_ratings.items():
+        for style_name, beers in style_to_beers.items():
+            ratings = [b.rating for b in beers]
             filtered_ratings = [value for value in ratings if value != -1.0]
 
             num_checkins = len(ratings)
@@ -195,8 +196,9 @@ class ApplicationDao:
             median_rating = median(filtered_ratings) if filtered_ratings else -1
             min_rating = min(filtered_ratings) if filtered_ratings else -1
             max_rating = max(filtered_ratings) if filtered_ratings else -1
+            first_checkin = min([b.first_checkin for b in beers])
             style = Style(name=style_name, num_checkins=num_checkins, min_rating=min_rating, max_rating=max_rating,
-                          avg_rating=avg_rating, median_rating=median_rating)
+                          avg_rating=avg_rating, median_rating=median_rating, first_checkin=first_checkin)
             styles.append(style)
 
         serialized_data = pickle.dumps(styles)

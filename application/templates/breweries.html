@@ -83,6 +83,8 @@
                     const numA = cellA === '' ? -1 : parseFloat(cellA);
                     const numB = cellB === '' ? -1 : parseFloat(cellB);
                     comparison = numA - numB;
+                } else if (columnIndex === 6) { // Date column
+                    comparison = new Date(cellA) - new Date(cellB);
                 } else {
                     comparison = cellA.localeCompare(cellB);
                 }
