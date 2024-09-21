@@ -31,6 +31,10 @@
                     Avg Rating
                     <span class="sort-icon none" id="icon-3"></span>
                 </th>
+                <th class="sortable" onclick="sortTable(4)">
+                    First Checkin
+                    <span class="sort-icon none" id="icon-4"></span>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -40,6 +44,7 @@
                 <td>{{ country.num_breweries }}</td>
                 <td>{{ country.num_checkins }}</td>
                 <td>{% if country.avg_rating != -1 %}{{ country.avg_rating | round(2) }}{% else %}{% endif %}</td>
+                <td>{{ country.first_checkin.strftime('%Y-%m-%d') }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -68,6 +73,8 @@
                     const numA = cellA === '' ? -1 : parseFloat(cellA);
                     const numB = cellB === '' ? -1 : parseFloat(cellB);
                     comparison = numA - numB;
+                } else if (columnIndex === 4) { // Date column
+                    comparison = new Date(cellA) - new Date(cellB);
                 } else {
                     comparison = cellA.localeCompare(cellB);
                 }

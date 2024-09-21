@@ -157,8 +157,10 @@ class ApplicationDao:
             else:
                 avg_rating = -1
 
+            first_checkin = min(b.first_checkin for b in country_breweries)
+
             countries.append(Country(name=country, num_breweries=num_breweries, num_checkins=num_checkins,
-                                     avg_rating=avg_rating))
+                                     avg_rating=avg_rating, first_checkin=first_checkin))
 
         serialized_data = pickle.dumps(countries)
         self.cache.set("countries_list", serialized_data, ex=REDIS_CACHE_TTL)
