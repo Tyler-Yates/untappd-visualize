@@ -28,6 +28,8 @@ class ApplicationDao:
         else:
             self.cache = cache
 
+        self.cache.flushall()
+
         # If no database provided, connect to one
         if database is None:
             username = os.environ.get("MONGO_USER")
@@ -142,7 +144,7 @@ class ApplicationDao:
             filtered_ratings = [value for value in ratings if value != -1.0]
 
             num_checkins = len(ratings)
-            avg_rating = sum(filtered_ratings) / num_checkins if filtered_ratings else -1
+            avg_rating = sum(filtered_ratings) / len(filtered_ratings) if filtered_ratings else -1
             median_rating = median(filtered_ratings) if filtered_ratings else -1
             min_rating = min(filtered_ratings) if filtered_ratings else -1
             max_rating = max(filtered_ratings) if filtered_ratings else -1
