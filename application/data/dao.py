@@ -99,9 +99,11 @@ class ApplicationDao:
             full_location = document["full_location"]
             brewery_id = document["id"]
 
-            ratings = [b.rating for b in brewery_id_to_beers[brewery_id]]
+            brewery_beers = brewery_id_to_beers[brewery_id]
+            ratings = [b.rating for b in brewery_beers]
             filtered_ratings = [value for value in ratings if value != -1.0]
             avg_rating = sum(filtered_ratings) / len(filtered_ratings) if filtered_ratings else -1
+            first_checkin = min([b.first_checkin for b in brewery_beers])
 
             brewery = Brewery(
                 id=brewery_id,
@@ -111,7 +113,8 @@ class ApplicationDao:
                 num_checkins=len(ratings),
                 num_checkins_with_ratings=len(filtered_ratings),
                 avg_rating=avg_rating,
-                country=self._get_country(full_location)
+                country=self._get_country(full_location),
+                first_checkin=first_checkin
             )
             breweries.append(brewery)
 

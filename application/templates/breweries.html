@@ -39,6 +39,10 @@
                     Checkins
                     <span class="sort-icon none" id="icon-5"></span>
                 </th>
+                <th class="sortable" onclick="sortTable(6)">
+                    First Checkin
+                    <span class="sort-icon none" id="icon-6"></span>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -50,6 +54,7 @@
                 <td>{{ brewery.country }}</td>
                 <td>{% if brewery.avg_rating != -1 %}{{ brewery.avg_rating | round(2) }}{% else %}{% endif %}</td>
                 <td>{{ brewery.num_checkins }}</td>
+                <td>{{ brewery.first_checkin.strftime('%Y-%m-%d') }}</td>
             </tr>
             {% endfor %}
         </tbody>

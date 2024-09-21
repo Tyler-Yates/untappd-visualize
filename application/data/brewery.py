@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 
 
 @dataclass
@@ -11,3 +12,4 @@ class Brewery:
     num_checkins: int
     num_checkins_with_ratings: int
     avg_rating: float
+    first_checkin: datetime
