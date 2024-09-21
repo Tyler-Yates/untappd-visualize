@@ -54,6 +54,7 @@ class ApplicationDao:
     def get_beers(self) -> list[Beer]:
         serialized_beer_list = self.cache.get("beer_list")
         if serialized_beer_list:
+            # noinspection PyTypeChecker
             return pickle.loads(serialized_beer_list)
 
         documents = self.beers_collection.find()
@@ -67,6 +68,7 @@ class ApplicationDao:
     def get_breweries(self) -> list[Brewery]:
         serialized_breweries_list = self.cache.get("breweries_list")
         if serialized_breweries_list:
+            # noinspection PyTypeChecker
             return pickle.loads(serialized_breweries_list)
 
         documents = self.breweries_collection.find()
@@ -87,6 +89,7 @@ class ApplicationDao:
                 type=document["type"],
                 full_location=full_location,
                 num_checkins=len(ratings),
+                num_checkins_with_ratings=len(filtered_ratings),
                 avg_rating=avg_rating,
                 country=self._get_country(full_location)
             )
@@ -109,20 +112,30 @@ class ApplicationDao:
     def get_countries(self) -> list[Country]:
         serialized_countries_list = self.cache.get("countries_list")
         if serialized_countries_list:
+            # noinspection PyTypeChecker
             return pickle.loads(serialized_countries_list)
 
         breweries = self.get_breweries()
-        country_to_breweries = defaultdict(set)
-        country_to_checkins = defaultdict(int)
+        country_to_breweries = defaultdict(list)
         for brewery in breweries:
-            country_to_breweries[brewery.country].add(brewery.id)
-            country_to_checkins[brewery.country] += brewery.num_checkins
+            country_to_breweries[brewery.country].append(brewery)
 
         countries = []
         for country in country_to_breweries.keys():
-            num_breweries = len(country_to_breweries[country])
-            num_checkins = country_to_checkins[country]
-            countries.append(Country(name=country, num_breweries=num_breweries, num_checkins=num_checkins))
+            country_breweries = country_to_breweries[country]
+            num_breweries = len(country_breweries)
+            num_checkins = sum(brewery.num_checkins for brewery in country_breweries)
+
+            num_rated_checkins = sum(brewery.num_checkins_with_ratings for brewery in country_breweries)
+            if num_rated_checkins > 0:
+                total_rating = sum(
+                    brewery.avg_rating * brewery.num_checkins_with_ratings for brewery in country_breweries)
+                avg_rating = total_rating / num_rated_checkins
+            else:
+                avg_rating = -1
+
+            countries.append(Country(name=country, num_breweries=num_breweries, num_checkins=num_checkins,
+                                     avg_rating=avg_rating))
 
         serialized_data = pickle.dumps(countries)
         self.cache.set("countries_list", serialized_data, ex=REDIS_CACHE_TTL)
@@ -142,6 +155,7 @@ class ApplicationDao:
     def get_styles(self) -> list[Style]:
         serialized_styles_list = self.cache.get("styles_list")
         if serialized_styles_list:
+            # noinspection PyTypeChecker
             return pickle.loads(serialized_styles_list)
 
         beers = self.get_beers()
