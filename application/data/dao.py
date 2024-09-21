@@ -67,17 +67,24 @@ class ApplicationDao:
             return pickle.loads(serialized_breweries_list)
 
         documents = self.breweries_collection.find()
-        brewery_id_to_checkins = self._get_brewery_checkins()
+        brewery_id_to_beers = self._get_brewery_to_beers()
 
         breweries = []
         for document in documents:
             full_location = document["full_location"]
+            brewery_id = document["id"]
+
+            ratings = [b.rating for b in brewery_id_to_beers[brewery_id]]
+            filtered_ratings = [value for value in ratings if value != -1.0]
+            avg_rating = sum(filtered_ratings) / len(filtered_ratings) if filtered_ratings else -1
+
             brewery = Brewery(
-                id=document["id"],
+                id=brewery_id,
                 name=document["name"],
                 type=document["type"],
                 full_location=full_location,
-                num_checkins=brewery_id_to_checkins.get(document["id"], 0),
+                num_checkins=len(ratings),
+                avg_rating=avg_rating,
                 country=self._get_country(full_location)
             )
             breweries.append(brewery)
@@ -119,13 +126,13 @@ class ApplicationDao:
 
         return countries
 
-    def _get_brewery_checkins(self) -> dict[str, int]:
-        brewery_id_to_checkins = defaultdict(int)
+    def _get_brewery_to_beers(self) -> dict[str, list[Beer]]:
+        brewery_id_to_checkins = defaultdict(list)
         beers = self.get_beers()
 
         for beer in beers:
             brewery_id = beer.brewery_id
-            brewery_id_to_checkins[brewery_id] += 1
+            brewery_id_to_checkins[brewery_id].append(beer)
 
         return brewery_id_to_checkins
 

@@ -9,3 +9,4 @@ class Brewery:
     full_location: str
     country: str
     num_checkins: int
+    avg_rating: float

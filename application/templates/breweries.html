@@ -32,8 +32,12 @@
                     <span class="sort-icon none" id="icon-3"></span>
                 </th>
                 <th class="sortable" onclick="sortTable(4)">
-                    Checkins
+                    Avg Rating
                     <span class="sort-icon none" id="icon-4"></span>
+                </th>
+                <th class="sortable" onclick="sortTable(5)">
+                    Checkins
+                    <span class="sort-icon none" id="icon-5"></span>
                 </th>
             </tr>
         </thead>
@@ -44,6 +48,7 @@
                 <td>{{ brewery.type }}</td>
                 <td>{{ brewery.full_location }}</td>
                 <td>{{ brewery.country }}</td>
+                <td>{% if brewery.avg_rating != -1 %}{{ brewery.avg_rating | round(2) }}{% else %}{% endif %}</td>
                 <td>{{ brewery.num_checkins }}</td>
             </tr>
             {% endfor %}
@@ -68,7 +73,7 @@
                 const cellB = rowB.children[columnIndex].textContent.trim();
 
                 let comparison = 0;
-                if (columnIndex === 4) { // Numeric columns
+                if (columnIndex === 4 || columnIndex === 5) { // Numeric columns
                     // Treat empty cells as -1
                     const numA = cellA === '' ? -1 : parseFloat(cellA);
                     const numB = cellB === '' ? -1 : parseFloat(cellB);
