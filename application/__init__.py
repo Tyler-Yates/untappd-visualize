@@ -5,6 +5,8 @@ import redis
 from flask import Flask
 from flask_compress import Compress
 from redis import Redis
+from redis.backoff import ExponentialBackoff
+from redis.retry import Retry
 
 from application.constants import DATABASE_CONFIG_KEY
 from application.data.custom_json_encoder import CustomJsonEncoder
@@ -32,7 +34,8 @@ def create_flask_app() -> Flask:
 
     redis_url = os.environ.get("REDIS_DATA_URL")
     if redis_url:
-        cache: Redis = redis.Redis.from_url(redis_url)
+        retry_strategy = Retry(ExponentialBackoff(), retries=5)
+        cache: Redis = redis.Redis.from_url(redis_url, retry=retry_strategy, retry_on_timeout=True, socket_timeout=5)
         cache.ping()
         LOG.info("Using Redis cache for data")
     else:
