@@ -64,14 +64,14 @@
         let currentSortColumn = null;
         let currentSortOrder = null;
 
-        function sortTable(columnIndex) {
+        function sortTable(columnIndex, defaultOrder = null) {
             const table = document.getElementById('beerTable');
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             const ths = table.querySelectorAll('thead th');
             const icons = table.querySelectorAll('.sort-icon');
 
             const th = ths[columnIndex];
-            const ascending = currentSortColumn === columnIndex ? !currentSortOrder : true;
+            const ascending = defaultOrder !== null ? defaultOrder : currentSortColumn === columnIndex ? !currentSortOrder : true;
 
             rows.sort((rowA, rowB) => {
                 const cellA = rowA.children[columnIndex].textContent.trim();
@@ -105,6 +105,11 @@
             const icon = document.getElementById(`icon-${columnIndex}`);
             icon.className = `sort-icon ${ascending ? 'asc' : 'desc'}`;
         }
+
+        // Call sortTable on page load for the "First Check-in" column (index 6) in descending order
+        window.onload = function() {
+            sortTable(6, false); // false = descending order
+        };
     </script>
 
 {% endblock %}

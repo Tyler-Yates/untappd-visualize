@@ -84,6 +84,11 @@
             const icon = document.getElementById(`icon-${columnIndex}`);
             icon.className = `sort-icon ${ascending ? 'asc' : 'desc'}`;
         }
+
+        // Call sortTable on page load for the "Name" column (index 0)
+        window.onload = function() {
+            sortTable(0);
+        };
     </script>
 
 {% endblock %}
